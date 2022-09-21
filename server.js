@@ -20,6 +20,7 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
+// TODO 라우터 사용하여 api 분리하기
 app.get('/home', (req, res) => {
   console.log('home');
   res.send({ name: 'pooreum' });
