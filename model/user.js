@@ -12,10 +12,10 @@ const userSchema = mongoose.Schema({
   },
   password: {
     type: String,
-    trim: true,
-    minlength: 8,
-    maxlength: 16,
+    required: true,
   },
+
+  refreshToken: String,
 });
 const User = mongoose.model('User', userSchema);
 module.exports = { User };
