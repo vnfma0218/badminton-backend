@@ -1,7 +1,6 @@
-const { User } = require('../model/user');
+const User = require('../model/user');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const registerUser = async (req, res) => {
@@ -40,53 +39,11 @@ const registerUser = async (req, res) => {
   return res.status(200).json({ message: 'success' });
 };
 
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
-  // login process
-  // validation 진행
-  // email, 비밀번호를 비교함
-  const foundUser = await User.findOne({ email });
-  if (!foundUser)
-    return res.status(401).json({ message: '일치하는 이메일이 없습니다.' });
-  const match = await bcrypt.compare(password, foundUser.password);
-  console.log('password', password);
-  console.log(foundUser);
-  console.log(match);
-  if (match) {
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          username: foundUser,
-          role: 'user',
-        },
-      },
-      process.env.ACCESS_TOKEN_KEY,
-      { expiresIn: '5m' }
-    );
-
-    const refreshToken = jwt.sign(
-      { username: foundUser.username },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: '1d' }
-    );
-    foundUser.refreshToken = refreshToken;
-    await foundUser.save();
-    // Creates Secure Cookie with refresh token
-    res.cookie('jwt', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'None',
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-
-    res.status(200).json({ accessToken });
-  } else {
-    res.status(403).json({ message: 'no authorization' });
-  }
+const getAllUsers = async (req, res) => {
+  console.log('get all user');
 };
 
 module.exports = {
   registerUser,
-  loginUser,
+  getAllUsers,
 };
