@@ -10,10 +10,16 @@ const registerPost = async (req, res) => {
   const foundUser = await User.findOne({ email: req.email }).exec();
   console.log(foundUser);
   if (foundUser) {
-    // content, user 정보와 함께 post를 save하기
-
     const { content } = req.body;
-    console.log(content);
+    const post = new Post({
+      content,
+      user: foundUser._id.toString(),
+    });
+
+    post.save((err, document) => {
+      foundUser.posts.push(document.id);
+      if (err) return res.status(500).json({ message: '500 error' });
+    });
   }
 
   res.status(200).json({ message: 'success' });

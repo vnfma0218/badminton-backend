@@ -4,6 +4,7 @@ const cors = require('cors');
 const credentials = require('./middleware/credentials');
 const mongoose = require('mongoose');
 const corsOptions = require('./config/corsOptions');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
@@ -12,11 +13,15 @@ const port = process.env.PORT || 3000;
 const user = require('./routes/api/user');
 const login = require('./routes/login');
 const post = require('./routes/api/post');
+const refresh = require('./routes/refresh');
+
 const verifyJWT = require('./middleware/verifyJWT');
 app.use(credentials);
 app.use(cors(corsOptions));
+// built-in middleware to handle urlencoded form data
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
+app.use(cookieParser());
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri);
 const connection = mongoose.connection;
@@ -25,7 +30,7 @@ connection.once('open', () => {
 });
 
 app.use('/', login);
-app.use('/refresh', require('./routes/refresh'));
+app.use('/', refresh);
 
 app.use(verifyJWT);
 

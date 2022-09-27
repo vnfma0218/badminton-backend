@@ -11,7 +11,6 @@ const loginUser = async (req, res) => {
     return res.status(401).json({ message: '일치하는 이메일이 없습니다.' });
   const match = await bcrypt.compare(password, foundUser.password);
   if (match) {
-    console.log(foundUser.email);
     const accessToken = jwt.sign(
       {
         UserInfo: {
@@ -20,25 +19,32 @@ const loginUser = async (req, res) => {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: '5m' }
+      { algorithm: 'HS256', expiresIn: '1h' }
     );
-
     const refreshToken = jwt.sign(
       {
         email: foundUser.email,
+        role: 'user',
       },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: '1d' }
+      { algorithm: 'HS256', expiresIn: '1d' }
     );
     foundUser.refreshToken = refreshToken;
     await foundUser.save();
+
     // Creates Secure Cookie with refresh token
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
-      secure: true,
       sameSite: 'None',
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
+    // {
+    //   httpOnly: true,
+    //   secure: true,
+    //   sameSite: 'None',
+    //   maxAge: 24 * 60 * 60 * 1000,
+    // }
 
     res.status(200).json({ accessToken });
   } else {
