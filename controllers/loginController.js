@@ -14,7 +14,7 @@ const loginUser = async (req, res) => {
     const accessToken = jwt.sign(
       {
         UserInfo: {
-          email: foundUser.email,
+          id: foundUser.id,
           role: 'user',
         },
       },
@@ -23,7 +23,7 @@ const loginUser = async (req, res) => {
     );
     const refreshToken = jwt.sign(
       {
-        email: foundUser.email,
+        id: foundUser.id,
         role: 'user',
       },
       process.env.REFRESH_TOKEN_SECRET,
@@ -46,7 +46,7 @@ const loginUser = async (req, res) => {
     //   maxAge: 24 * 60 * 60 * 1000,
     // }
 
-    res.status(200).json({ accessToken });
+    res.status(200).json({ accessToken, userId: foundUser._id });
   } else {
     res.status(403).json({ message: 'no authorization' });
   }

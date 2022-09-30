@@ -15,7 +15,6 @@ const login = require('./routes/login');
 const post = require('./routes/api/post');
 const refresh = require('./routes/refresh');
 
-const verifyJWT = require('./middleware/verifyJWT');
 app.use(credentials);
 app.use(cors(corsOptions));
 // built-in middleware to handle urlencoded form data
@@ -31,8 +30,6 @@ connection.once('open', () => {
 
 app.use('/', login);
 app.use('/', refresh);
-
-app.use(verifyJWT);
 
 app.use('/', user);
 app.use('/post', post);
