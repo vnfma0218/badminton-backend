@@ -17,8 +17,8 @@ const userSchema = new Schema({
     required: true,
   },
 
-  refreshToken: String,
   posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+  refreshToken: String,
 });
 const User = mongoose.model('User', userSchema);
 module.exports = User;

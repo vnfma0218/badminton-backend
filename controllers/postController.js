@@ -24,28 +24,34 @@ const registerPost = async (req, res) => {
   const foundUser = await User.findOne({ _id: userId }).exec();
   if (foundUser) {
     const { content } = req.body;
-    const post = new Post({
+    const createdPost = new Post({
       content,
       user: foundUser._id.toString(),
     });
-    post.save();
+    await createdPost.save();
+    foundUser.posts.push(createdPost);
+    await foundUser.save();
+    res.status(200).json({ message: 'success' });
+  } else {
+    res.stats(401);
   }
-
-  res.status(200).json({ message: 'success' });
 };
 
 const deleteByPostId = async (req, res) => {
   const reqUser = await User.findById(req.userId);
   const { postId } = req.params;
-  const foundedPost = await Post.findById(postId);
-
+  const foundedPost = await Post.findById(postId).populate('user');
+  console.log(foundedPost);
   if (!foundedPost) {
     console.log('hello');
     return res.status(204).json({ message: 'already delete or not existing!' });
   }
 
-  if (foundedPost.user.toString() === reqUser.id) {
+  if (foundedPost.user._id.toString() === reqUser.id) {
     await Post.findByIdAndDelete(postId);
+    foundedPost.user.posts.pull(foundedPost);
+    await foundedPost.user.save();
+
     return res.status(200).json({ message: 'success' });
   } else {
     return res.status(401).json({ message: 'unAuthorization' });
@@ -68,6 +74,10 @@ const updatePostById = async (req, res) => {
   } else {
     return res.status(401).json({ message: 'unAuthorization' });
   }
+};
+
+const getPostsByUserId = async (req, res) => {
+  const { userId } = req.cookies;
 };
 
 module.exports = {
