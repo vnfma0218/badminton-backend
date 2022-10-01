@@ -19,7 +19,7 @@ const loginUser = async (req, res) => {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { algorithm: 'HS256', expiresIn: '1h' }
+      { algorithm: 'HS256', expiresIn: '1d' }
     );
     const refreshToken = jwt.sign(
       {
@@ -33,12 +33,6 @@ const loginUser = async (req, res) => {
     await foundUser.save();
 
     // Creates Secure Cookie with refresh token
-    res.cookie('jwt', refreshToken, {
-      httpOnly: true,
-      sameSite: 'None',
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
     // {
     //   httpOnly: true,
     //   secure: true,
@@ -46,7 +40,15 @@ const loginUser = async (req, res) => {
     //   maxAge: 24 * 60 * 60 * 1000,
     // }
 
+    // res.cookie('jwt', refreshToken, {
+    //   secure: true,
+    //   sameSite: 'None',
+    //   maxAge: 24 * 60 * 60 * 1000,
+    // });
+    res.cookie('jwt', refreshToken);
+    res.cookie('userId', foundUser._id);
     res.status(200).json({ accessToken, userId: foundUser._id });
+    // res.status(200).json({ accessToken, userId: foundUser._id });
   } else {
     res.status(403).json({ message: 'no authorization' });
   }
