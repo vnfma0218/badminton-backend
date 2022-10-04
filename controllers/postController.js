@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { RESULT_CODE } = require('../config/apiCode');
 
 const Post = require('../model/post');
 const User = require('../model/user');
@@ -10,12 +11,12 @@ const getAllPosts = async (req, res) => {
   const foundUser = await User.findById(id);
   const postList = await Post.find().populate('user');
   const transformedPosts = postList.map((post) => {
+    console.log(post.id);
     const myPostYn = post.user._id.toString() === foundUser._id.toString();
 
-    return { ...post._doc, myPostYn };
+    return { ...post._doc, myPostYn, id: post.id };
   });
 
-  console.log(transformedPosts);
   res.status(200).json({ postList: transformedPosts });
 };
 
@@ -31,7 +32,7 @@ const registerPost = async (req, res) => {
     await createdPost.save();
     foundUser.posts.push(createdPost);
     await foundUser.save();
-    res.status(200).json({ message: 'success' });
+    res.status(200).json({ message: RESULT_CODE['success'] });
   } else {
     res.stats(401);
   }
@@ -52,9 +53,9 @@ const deleteByPostId = async (req, res) => {
     foundedPost.user.posts.pull(foundedPost);
     await foundedPost.user.save();
 
-    return res.status(200).json({ message: 'success' });
+    return res.status(200).json({ resultCode: RESULT_CODE['success'] });
   } else {
-    return res.status(401).json({ message: 'unAuthorization' });
+    return res.status(401).json({ resultCode: RESULT_CODE['unAuthorization'] });
   }
 };
 
