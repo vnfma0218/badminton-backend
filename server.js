@@ -11,7 +11,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const user = require('./routes/api/user');
-const login = require('./routes/login');
+const auth = require('./routes/auth');
 const post = require('./routes/api/post');
 const refresh = require('./routes/refresh');
 
@@ -28,7 +28,7 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
-app.use('/', login);
+app.use('/', auth);
 app.use('/', refresh);
 
 app.use('/', user);

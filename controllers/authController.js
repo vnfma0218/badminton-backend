@@ -27,10 +27,13 @@ const loginUser = async (req, res) => {
         role: 'user',
       },
       process.env.REFRESH_TOKEN_SECRET,
-      { algorithm: 'HS256', expiresIn: '1d' }
+      { algorithm: 'HS256', expiresIn: '7d' }
     );
     foundUser.refreshToken = refreshToken;
     await foundUser.save();
+    res.cookie('jwt', refreshToken);
+    res.cookie('userId', foundUser._id);
+    res.status(200).json({ accessToken, userId: foundUser._id });
 
     // Creates Secure Cookie with refresh token
     // {
@@ -39,19 +42,23 @@ const loginUser = async (req, res) => {
     //   sameSite: 'None',
     //   maxAge: 24 * 60 * 60 * 1000,
     // }
-
-    // res.cookie('jwt', refreshToken, {
-    //   secure: true,
-    //   sameSite: 'None',
-    //   maxAge: 24 * 60 * 60 * 1000,
-    // });
-    res.cookie('jwt', refreshToken);
-    res.cookie('userId', foundUser._id);
-    res.status(200).json({ accessToken, userId: foundUser._id });
-    // res.status(200).json({ accessToken, userId: foundUser._id });
   } else {
     res.status(403).json({ message: 'no authorization' });
   }
 };
 
-module.exports = { loginUser };
+const logoutUser = async (req, res) => {
+  const foundUser = await User.findOne({ _id: req.userId });
+  const result = await foundUser.update({ refreshToken: '' });
+  // user의 토큰 없애고
+  console.log(foundUser);
+
+  res.clearCookie('jwt');
+  res.clearCookie('userId');
+
+  // cookie 유저정보, 토큰 없앤다.
+
+  return res.status(200).json({ message: 'success' });
+};
+
+module.exports = { loginUser, logoutUser };

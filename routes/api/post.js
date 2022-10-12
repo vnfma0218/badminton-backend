@@ -3,9 +3,8 @@ const router = express.Router();
 const postController = require('../../controllers/postController');
 const verifyJWT = require('../../middleware/verifyJWT');
 router.get('/all', postController.getAllPosts);
-router.use(verifyJWT);
-router.post('/register', postController.registerPost);
-router.delete('/delete/:postId', postController.deleteByPostId);
-router.put('/update/:postId', postController.updatePostById);
+router.post('/register', verifyJWT, postController.registerPost);
+router.delete('/delete/:postId', verifyJWT, postController.deleteByPostId);
+router.put('/update/:postId', verifyJWT, postController.updatePostById);
 
 module.exports = router;

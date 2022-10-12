@@ -9,7 +9,10 @@ const getAllPosts = async (req, res) => {
   const { userId } = req.cookies;
   const id = mongoose.Types.ObjectId(userId);
   const foundUser = await User.findById(id);
-  const postList = await Post.find().populate('user');
+  const postList = await Post.find().populate(
+    'user',
+    '-password -refreshToken'
+  );
   const transformedPosts = postList.map((post) => {
     console.log(post.id);
     const myPostYn = post.user._id.toString() === foundUser._id.toString();
@@ -24,15 +27,21 @@ const registerPost = async (req, res) => {
   const { userId } = req;
   const foundUser = await User.findOne({ _id: userId }).exec();
   if (foundUser) {
-    const { content } = req.body;
+    const { content, title } = req.body;
+    if (!content || !title)
+      return res.status(200).json({
+        resultCode: RESULT_CODE['notValid'],
+        message: '유효하지 않은 입력이에요',
+      });
     const createdPost = new Post({
       content,
+      title,
       user: foundUser._id.toString(),
     });
     await createdPost.save();
     foundUser.posts.push(createdPost);
     await foundUser.save();
-    res.status(200).json({ message: RESULT_CODE['success'] });
+    res.status(200).json({ resultCode: RESULT_CODE['success'] });
   } else {
     res.stats(401);
   }
