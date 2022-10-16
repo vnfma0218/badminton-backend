@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 const bcrypt = require('bcrypt');
+const { RESULT_CODE } = require('../config/apiCode');
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   console.log('login');
   const foundUser = await User.findOne({ email });
-  console.log(foundUser);
+  // console.log(foundUser);
   if (!foundUser)
     return res.status(401).json({ message: '일치하는 이메일이 없습니다.' });
   const match = await bcrypt.compare(password, foundUser.password);
@@ -33,7 +34,11 @@ const loginUser = async (req, res) => {
     await foundUser.save();
     res.cookie('jwt', refreshToken);
     res.cookie('userId', foundUser._id);
-    res.status(200).json({ accessToken, userId: foundUser._id });
+    res.status(200).json({
+      resultCode: RESULT_CODE['success'],
+      accessToken,
+      userId: foundUser._id,
+    });
 
     // Creates Secure Cookie with refresh token
     // {
@@ -50,7 +55,7 @@ const loginUser = async (req, res) => {
 const logoutUser = async (req, res) => {
   const foundUser = await User.findOne({ _id: req.userId });
   const result = await foundUser.update({ refreshToken: '' });
-  // user의 토큰 없애고
+  // user의 토큰 없애고gkjf
   console.log(foundUser);
 
   res.clearCookie('jwt');
@@ -58,7 +63,9 @@ const logoutUser = async (req, res) => {
 
   // cookie 유저정보, 토큰 없앤다.
 
-  return res.status(200).json({ message: 'success' });
+  return res
+    .status(200)
+    .json({ message: 'success', resultCode: RESULT_CODE['success'] });
 };
 
 module.exports = { loginUser, logoutUser };

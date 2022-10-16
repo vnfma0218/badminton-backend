@@ -41,7 +41,9 @@ const registerPost = async (req, res) => {
     await createdPost.save();
     foundUser.posts.push(createdPost);
     await foundUser.save();
-    res.status(200).json({ resultCode: RESULT_CODE['success'] });
+    res
+      .status(200)
+      .json({ resultCode: RESULT_CODE['success'], message: '글을 등록했어요' });
   } else {
     res.stats(401);
   }
@@ -70,7 +72,7 @@ const deleteByPostId = async (req, res) => {
 
 const updatePostById = async (req, res) => {
   const { postId } = req.params;
-  const { content } = req.body;
+  const { content, title } = req.body;
   const reqUser = await User.findById(req.userId);
   const foundedPost = await Post.findById(postId);
   if (!foundedPost) {
@@ -79,8 +81,10 @@ const updatePostById = async (req, res) => {
 
   if (foundedPost.user.toString() === reqUser.id) {
     console.log(content);
-    await Post.findByIdAndUpdate(postId, { content });
-    return res.status(200).json({ message: 'success' });
+    await Post.findByIdAndUpdate(postId, { content, title });
+    return res
+      .status(200)
+      .json({ message: 'success', resultCode: RESULT_CODE['success'] });
   } else {
     return res.status(401).json({ message: 'unAuthorization' });
   }
@@ -90,9 +94,28 @@ const getPostsByUserId = async (req, res) => {
   const { userId } = req.cookies;
 };
 
+const getPostById = async (req, res) => {
+  const { postId } = req.params;
+  const post = await Post.findById(postId).populate(
+    'user',
+    '-password -refreshToken'
+  );
+  const { userId } = req.cookies;
+  const foundUser = await User.findById(mongoose.Types.ObjectId(userId));
+  console.log('post', post);
+  console.log('post.user', post.user._id.toString() === foundUser.id);
+  if (post) {
+    res.status(200).json({
+      ...post._doc,
+      myPostYn: post.user._id.toString() === foundUser.id,
+    });
+  }
+};
+
 module.exports = {
   getAllPosts,
   registerPost,
   deleteByPostId,
   updatePostById,
+  getPostById,
 };

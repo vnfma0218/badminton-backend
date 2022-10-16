@@ -1,6 +1,7 @@
 const User = require('../model/user');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
+const { RESULT_CODE } = require('../config/apiCode');
 require('dotenv').config();
 
 const registerUser = async (req, res) => {
@@ -29,14 +30,33 @@ const registerUser = async (req, res) => {
     password: hashedPw,
   });
 
+  const accessToken = jwt.sign(
+    {
+      UserInfo: {
+        id: foundUser.id,
+        role: 'user',
+      },
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    { algorithm: 'HS256', expiresIn: '1d' }
+  );
+  const refreshToken = jwt.sign(
+    {
+      id: foundUser.id,
+      role: 'user',
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    { algorithm: 'HS256', expiresIn: '7d' }
+  );
+  user.refreshToken = refreshToken;
   await user.save();
 
-  //   // TODO 토큰 생성 후 토큰
-  //   const token = jwt.sign({ email }, tokenKey);
+  res.cookie('jwt', refreshToken);
+  res.cookie('userId', user._id);
 
-  //   // jwt
-  //   console.log(token);
-  return res.status(200).json({ message: 'success' });
+  return res
+    .status(200)
+    .json({ message: 'success', resultCode: RESULT_CODE['success'] });
 };
 
 const getAllUsers = async (req, res) => {

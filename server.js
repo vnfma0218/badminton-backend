@@ -13,6 +13,7 @@ const port = process.env.PORT || 3000;
 const user = require('./routes/api/user');
 const auth = require('./routes/auth');
 const post = require('./routes/api/post');
+const comment = require('./routes/api/comment');
 const refresh = require('./routes/refresh');
 
 app.use(credentials);
@@ -33,6 +34,7 @@ app.use('/', refresh);
 
 app.use('/', user);
 app.use('/post', post);
+app.use('/comment', comment);
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
