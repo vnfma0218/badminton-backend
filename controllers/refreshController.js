@@ -22,7 +22,7 @@ const refreshToken = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '1d' }
     );
-    res.json({ userId: foundUser._id, accessToken });
+    res.json({ userId: foundUser._id, accessToken, nickname: foundUser.name });
   });
 };
 

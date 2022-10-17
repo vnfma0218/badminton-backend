@@ -15,7 +15,9 @@ const getAllPosts = async (req, res) => {
   );
   const transformedPosts = postList.map((post) => {
     console.log(post.id);
-    const myPostYn = post.user._id.toString() === foundUser._id.toString();
+    const myPostYn = !foundUser
+      ? false
+      : post.user._id.toString() === foundUser._id.toString();
 
     return { ...post._doc, myPostYn, id: post.id };
   });
@@ -96,18 +98,35 @@ const getPostsByUserId = async (req, res) => {
 
 const getPostById = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId).populate(
-    'user',
-    '-password -refreshToken'
-  );
+  const post = await Post.findById(postId)
+    .populate('user', '-password -refreshToken -posts -comments')
+    .populate({
+      path: 'comments',
+      populate: {
+        path: 'user',
+        select: 'name',
+        model: 'User',
+      },
+    });
+
   const { userId } = req.cookies;
   const foundUser = await User.findById(mongoose.Types.ObjectId(userId));
-  console.log('post', post);
-  console.log('post.user', post.user._id.toString() === foundUser.id);
+  const trannformedComment = post._doc.comments.map((c) => {
+    return {
+      ...c._doc,
+      isMine: c.user.id === foundUser?.id,
+    };
+  });
+  console.log(post._doc);
+
+  console.log(trannformedComment);
   if (post) {
     res.status(200).json({
-      ...post._doc,
-      myPostYn: post.user._id.toString() === foundUser.id,
+      post: {
+        ...post._doc,
+        myPostYn: post.user._id.toString() === foundUser?.id,
+      },
+      comments: trannformedComment,
     });
   }
 };

@@ -38,6 +38,7 @@ const loginUser = async (req, res) => {
       resultCode: RESULT_CODE['success'],
       accessToken,
       userId: foundUser._id,
+      nickname: foundUser.name,
     });
 
     // Creates Secure Cookie with refresh token
