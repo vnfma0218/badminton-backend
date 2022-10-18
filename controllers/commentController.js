@@ -47,7 +47,18 @@ const deleteCommentById = async (req, res) => {
     .json({ resultCode: RESULT_CODE['success'], message: '삭제했어요' });
 };
 
+const updateCommentById = async (req, res) => {
+  const { commentId } = req.params;
+  const { content } = req.body;
+  await Comment.findByIdAndUpdate(commentId, { content });
+
+  res
+    .status(200)
+    .json({ resultCode: RESULT_CODE['success'], message: '수정했어요' });
+};
+
 module.exports = {
   registerComment,
   deleteCommentById,
+  updateCommentById,
 };

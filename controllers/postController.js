@@ -9,10 +9,9 @@ const getAllPosts = async (req, res) => {
   const { userId } = req.cookies;
   const id = mongoose.Types.ObjectId(userId);
   const foundUser = await User.findById(id);
-  const postList = await Post.find().populate(
-    'user',
-    '-password -refreshToken'
-  );
+  const postList = await Post.find()
+    .populate('user', '-password -refreshToken')
+    .populate('comments', 'id');
   const transformedPosts = postList.map((post) => {
     console.log(post.id);
     const myPostYn = !foundUser
@@ -114,6 +113,7 @@ const getPostById = async (req, res) => {
   const trannformedComment = post._doc.comments.map((c) => {
     return {
       ...c._doc,
+      id: c._doc._id,
       isMine: c.user.id === foundUser?.id,
     };
   });
