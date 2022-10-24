@@ -6,14 +6,23 @@ const User = require('../model/user');
 
 const getAllPosts = async (req, res) => {
   console.log('get all');
+  const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
   const { userId } = req.cookies;
+
   const id = mongoose.Types.ObjectId(userId);
   const foundUser = await User.findById(id);
   const postList = await Post.find()
-    .populate('user', '-password -refreshToken')
-    .populate('comments', 'id');
+    .populate('user', 'name')
+    .limit(limit)
+    .skip(startIndex)
+    .exec();
+  const postTotalCnt = await Post.count();
   const transformedPosts = postList.map((post) => {
-    console.log(post.id);
     const myPostYn = !foundUser
       ? false
       : post.user._id.toString() === foundUser._id.toString();
@@ -21,7 +30,10 @@ const getAllPosts = async (req, res) => {
     return { ...post._doc, myPostYn, id: post.id };
   });
 
-  res.status(200).json({ postList: transformedPosts });
+  res.status(200).json({
+    resultCode: RESULT_CODE['success'],
+    dataList: { postList: transformedPosts, totalCnt: postTotalCnt },
+  });
 };
 
 const registerPost = async (req, res) => {
@@ -96,8 +108,9 @@ const getPostsByUserId = async (req, res) => {
 };
 
 const getPostById = async (req, res) => {
+  console.log('getPostById');
   const { postId } = req.params;
-  const post = await Post.findById(postId)
+  const post = await Post.findOne({ id: postId })
     .populate('user', '-password -refreshToken -posts -comments')
     .populate({
       path: 'comments',
@@ -117,9 +130,7 @@ const getPostById = async (req, res) => {
       isMine: c.user.id === foundUser?.id,
     };
   });
-  console.log(post._doc);
 
-  console.log(trannformedComment);
   if (post) {
     res.status(200).json({
       post: {

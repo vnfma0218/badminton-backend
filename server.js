@@ -29,11 +29,11 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
+app.use('/post', post);
 app.use('/', auth);
 app.use('/', refresh);
 
 app.use('/', user);
-app.use('/post', post);
 app.use('/comment', comment);
 
 app.listen(port, () => {
