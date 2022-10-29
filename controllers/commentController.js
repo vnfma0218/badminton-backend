@@ -1,23 +1,37 @@
-const mongoose = require('mongoose');
 const { RESULT_CODE } = require('../config/apiCode');
 
 const Post = require('../model/post');
 const User = require('../model/user');
 const Comment = require('../model/comment');
+const Notification = require('../model/notification');
 
 const registerComment = async (req, res) => {
   console.log('registerComment');
   const { postId } = req.params;
   const { content } = req.body;
-  const foundUser = await User.findById(req.userId);
+  const foundUser = await User.findById(req.userId); // 댓글작성자
   const foundPost = await Post.findById(postId);
+
   const comment = new Comment({
     content,
     user: foundUser._id.toString(),
     post: postId,
   });
 
-  console.log('foundPost', foundPost);
+  // 글 주인
+  // 댓글 주인이 다르면
+  const postUser = foundPost.user.toString();
+  if (postUser !== foundUser._id.toString()) {
+    const noti = new Notification({
+      content: `${foundUser.name} 님이 댓글을 작성했어요`,
+      to: postUser,
+      from: foundUser,
+    });
+
+    await noti.save();
+  }
+  // 글 주인에게 댓글주인이 댓글 썼다는 noti를 생성한다.
+
   await comment.save();
   foundUser.comments.push(comment);
   foundPost.comments.push(comment);

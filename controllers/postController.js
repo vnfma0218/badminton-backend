@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const { RESULT_CODE } = require('../config/apiCode');
-
+const ObjectId = require('mongodb').ObjectId;
 const Post = require('../model/post');
 const User = require('../model/user');
+const Comment = require('../model/comment');
 
 const getAllPosts = async (req, res) => {
   console.log('get all');
@@ -18,6 +19,7 @@ const getAllPosts = async (req, res) => {
   const foundUser = await User.findById(id);
   const postList = await Post.find()
     .populate('user', 'name')
+    .populate('comments', 'content')
     .limit(limit)
     .skip(startIndex)
     .exec();
@@ -50,6 +52,7 @@ const registerPost = async (req, res) => {
       content,
       title,
       user: foundUser._id.toString(),
+      comments: [],
     });
     await createdPost.save();
     foundUser.posts.push(createdPost);
@@ -110,34 +113,31 @@ const getPostsByUserId = async (req, res) => {
 const getPostById = async (req, res) => {
   console.log('getPostById');
   const { postId } = req.params;
-  const post = await Post.findOne({ id: postId })
-    .populate('user', '-password -refreshToken -posts -comments')
-    .populate({
-      path: 'comments',
-      populate: {
-        path: 'user',
-        select: 'name',
-        model: 'User',
-      },
-    });
+  const post = await Post.findById(postId).populate('comments');
+  const comments = await Comment.find({
+    post: mongoose.Types.ObjectId(postId),
+  }).populate('user', 'name');
 
   const { userId } = req.cookies;
   const foundUser = await User.findById(mongoose.Types.ObjectId(userId));
-  const trannformedComment = post._doc.comments.map((c) => {
+
+  const newComments = comments.map((c) => {
     return {
       ...c._doc,
       id: c._doc._id,
-      isMine: c.user.id === foundUser?.id,
+      isMine: c.user._id.toString() === foundUser?.id,
     };
   });
 
+  console.log(comments);
   if (post) {
     res.status(200).json({
       post: {
         ...post._doc,
+        comments: newComments,
         myPostYn: post.user._id.toString() === foundUser?.id,
       },
-      comments: trannformedComment,
+      // comments: trannformedComment,
     });
   }
 };

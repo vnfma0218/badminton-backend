@@ -6,9 +6,14 @@ const notificationSchema = mongoose.Schema({
     required: true,
   },
 
-  title: {
-    type: String,
-    required: true,
+  to: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+
+  from: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   },
 
   created_at: {
@@ -17,3 +22,4 @@ const notificationSchema = mongoose.Schema({
   },
 });
 const Notification = mongoose.model('Notification', notificationSchema);
+module.exports = Notification;

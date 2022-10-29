@@ -14,6 +14,7 @@ const user = require('./routes/api/user');
 const auth = require('./routes/auth');
 const post = require('./routes/api/post');
 const comment = require('./routes/api/comment');
+const notification = require('./routes/api/notification');
 const refresh = require('./routes/refresh');
 
 app.use(credentials);
@@ -22,8 +23,10 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri);
+
 const connection = mongoose.connection;
 connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
@@ -35,6 +38,7 @@ app.use('/', refresh);
 
 app.use('/', user);
 app.use('/comment', comment);
+app.use('/noti', notification);
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
