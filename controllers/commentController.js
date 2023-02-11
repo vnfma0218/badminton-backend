@@ -54,7 +54,6 @@ const deleteCommentById = async (req, res) => {
   foundPost.comments.pull(foundComment);
   await foundUser.save();
   await foundPost.save();
-  console.log('foundPost', foundPost);
   await Comment.findByIdAndDelete(commentId);
   res
     .status(200)

@@ -6,7 +6,6 @@ const User = require('../model/user');
 const Comment = require('../model/comment');
 
 const getAllPosts = async (req, res) => {
-  console.log('get all');
   const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 

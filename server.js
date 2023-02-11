@@ -13,6 +13,7 @@ const port = process.env.PORT || 3000;
 const user = require('./routes/api/user');
 const auth = require('./routes/auth');
 const post = require('./routes/api/post');
+const club = require('./routes/api/club');
 const comment = require('./routes/api/comment');
 const notification = require('./routes/api/notification');
 const refresh = require('./routes/refresh');
@@ -33,6 +34,7 @@ connection.once('open', () => {
 });
 
 app.use('/post', post);
+app.use('/', club);
 app.use('/', auth);
 app.use('/', refresh);
 

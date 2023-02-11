@@ -57,7 +57,6 @@ const logoutUser = async (req, res) => {
   const foundUser = await User.findOne({ _id: req.userId });
   const result = await foundUser.update({ refreshToken: '' });
   // user의 토큰 없애고gkjf
-  console.log(foundUser);
 
   res.clearCookie('jwt');
   res.clearCookie('userId');
