@@ -38,4 +38,12 @@ const getNearClubs = async (req, res) => {
   }
 };
 
-module.exports = { postClub, getNearClubs };
+const findByName = async (req, res) => {
+  const { name } = req.query;
+  const regex = (pattern) => new RegExp(`.*${pattern}.*`);
+  const nameRegex = regex(name); // .*토끼.*
+  const result = await Club.find({ name: { $regex: nameRegex } });
+  res.json({ resultCode: RESULT_CODE['success'], dataList: result });
+};
+
+module.exports = { postClub, getNearClubs, findByName };
