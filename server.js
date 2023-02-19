@@ -24,6 +24,9 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+// 정적(static) 파일을 손쉽게 제공하기 위해 사용한다. express.static 을 사용하지 않으면,
+// 정적 파일이 존재하는 path 로 접근하기 위한 코드가 번거롭고 복잡하게 된다.
+app.use('/public', express.static('public'));
 
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri);

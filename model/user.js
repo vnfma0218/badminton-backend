@@ -15,6 +15,16 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  intro: {
+    type: String,
+    required: false,
+    maxlength: 200,
+  },
+  level: {
+    type: String,
+    enum: ['A', 'B', 'C', 'D'],
+    required: false,
+  },
 
   posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
   comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],

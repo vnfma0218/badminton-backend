@@ -60,7 +60,40 @@ const registerUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {};
 
+const editUser = async (req, res) => {
+  const { name, level, intro } = req.body;
+  const response = await User.findOneAndUpdate(
+    { name },
+    {
+      name,
+      level,
+      intro,
+    }
+  );
+  console.log(response);
+  res.status(200).json({
+    resultCode: RESULT_CODE['success'],
+    message: 'success',
+  });
+};
+
+const getUserById = async (req, res) => {
+  const user = await User.findById(req.userId);
+  res.status(200).json({
+    resultCode: RESULT_CODE['success'],
+    dataList: {
+      user: {
+        name: user.name,
+        intro: user.intro ?? '',
+        level: user.level ?? '',
+      },
+    },
+  });
+};
+
 module.exports = {
   registerUser,
   getAllUsers,
+  editUser,
+  getUserById,
 };
