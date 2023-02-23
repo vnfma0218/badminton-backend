@@ -70,7 +70,6 @@ const editUser = async (req, res) => {
       intro,
     }
   );
-  console.log(response);
   res.status(200).json({
     resultCode: RESULT_CODE['success'],
     message: 'success',

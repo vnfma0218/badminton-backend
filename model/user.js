@@ -25,7 +25,7 @@ const userSchema = new Schema({
     enum: ['A', 'B', 'C', 'D'],
     required: false,
   },
-
+  club: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
   posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
   comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
   noti: [{ type: Schema.Types.ObjectId, ref: 'Notification' }],
